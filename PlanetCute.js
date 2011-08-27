@@ -1,3 +1,4 @@
+// TODO: animate containing div rather than individual imgs for performance
 PlanetCute = function(mapDesc) {
     var tileset = {
       "+": {landscape: "Stone Block", tileDepth: 0},
