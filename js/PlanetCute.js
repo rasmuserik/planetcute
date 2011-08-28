@@ -1,39 +1,58 @@
 // TODO: animate containing div rather than individual imgs for performance
 
-// 5x5(7x7) viewport
+// 10x7 viewport
 //
 
 PlanetCute = function(mapDesc) {
 
 
+    var size = 10;
 
     function mapParse(mapDesc) {
         var map, mapXmax, mapYmax, tileset, result, x, y;
 
         tileset = {
-          "+": {landscape: "Stone-Block", tileDepth: 0},
-          "o": {landscape: "Brown-Block", tileDepth: 0},
-          "p": {landscape: "Plain-Block", tileDepth: 0},
-          "d": {landscape: "Dirt-Block", tileDepth: 0},
-          " ": {landscape: "Grass-Block", tileDepth: 0},
-          "~": {landscape: "Water-Block", tileDepth: 0},
-          "=": {landscape: "Wood-Block", tileDepth: 0},
-          "#": {landscape: "Wall-Block", tileDepth: 0},
-          "A": {landscape: "Ramp-North", tileDepth: .5},
-          ">": {landscape: "Ramp-East", tileDepth: .5},
-          "<": {landscape: "Ramp-West", tileDepth: .5},
-          "V": {landscape: "Ramp-South", tileDepth: .5}
+          "+": "Stone-Block",
+          "o": "Brown-Block",
+          "p": "Plain-Block",
+          "d": "Dirt-Block",
+          "D": "Door-Tall-Closed",
+          "W": "Window-Tall",
+          "X": "Wall-Block-Tall",
+          "S": "Stone-Block-Tall",
+          " ": "Grass-Block",
+          "~": "Water-Block",
+          "=": "Wood-Block",
+          "#": "Wall-Block"
+        };
+        objset = {
+          "t": "Tree-Short",
+          "T": "Tree-Tall",
+          "o": "Selector",
+          "*": "Star",
+          "r": "Rock",
+          "k": "Key",
+          "C": "Chest-Closed",
+          "a": "Roof-North-West",
+          "s": "Roof-North",
+          "d": "Roof-North-East",
+          "z": "Roof-South-West",
+          "x": "Roof-South",
+          "c": "Roof-South-East",
         };
 
         map = {};
         mapXmax = mapYmax = 0;
 
         for(y=0;y<mapDesc.length;++y) {
-            for(x=0;x<mapDesc[y].length/2;++x) {
-                var result = Object.create(tileset[mapDesc[y][x*2+1]]);
-                result.x = x;
-                result.y = y;
-                result.h = +mapDesc[y][x*2];
+            for(x=0;x<mapDesc[y].length/3;++x) {
+                var result = {
+                    obj: "" + objset[mapDesc[y][x*3]],
+                    h: +mapDesc[y][x*3+1],
+                    tile: "" + tileset[mapDesc[y][x*3+2]],
+                    x: x,
+                    y: y
+                };
                 map[x+','+y] = result;
                 mapXmax = mapXmax < x ? x : mapXmax;
                 mapYmax = mapYmax < y ? y : mapYmax;
@@ -41,132 +60,117 @@ PlanetCute = function(mapDesc) {
         }
 
         return function(x,y) {
-            x = x % mapXmax; x >=0 || (x += mapXmax);
-            y = y % mapYmax; y >=0 || (y += mapYmax);
-            return mapData[x+','+y];
+            return map[x+','+y];
         }
     }
     map = mapParse(mapDesc);
-
 
     // landscape .4 air .8 floor .8 wall
     // obj 1.2 air .8 floor
-    var scale = 100; 
+    var scale = 480/10;
     var prevx0, prevy0;
     var imgs;
-    function update(x0, y0) {
-        if(prevx0 !== x0 || prevy0 !== y0) {
-            prevx0 = x0; prevy0 = y0;
-        }
-    }
-
-};
-
-PlanetCute = function(mapDesc) {
-    var tileset = {
-      "+": {landscape: "Stone-Block", tileDepth: 0},
-      "o": {landscape: "Brown-Block", tileDepth: 0},
-      "p": {landscape: "Plain-Block", tileDepth: 0},
-      "d": {landscape: "Dirt-Block", tileDepth: 0},
-      " ": {landscape: "Grass-Block", tileDepth: 0},
-      "~": {landscape: "Water-Block", tileDepth: 0},
-      "=": {landscape: "Wood-Block", tileDepth: 0},
-      "#": {landscape: "Wall-Block", tileDepth: 0},
-      "A": {landscape: "Ramp-North", tileDepth: .5},
-      ">": {landscape: "Ramp-East", tileDepth: .5},
-      "<": {landscape: "Ramp-West", tileDepth: .5},
-      "V": {landscape: "Ramp-South", tileDepth: .5}
-    };
-
-    
-    mapXmax = mapYmax = 0;
-    function mapParse(mapDesc) {
-        var map = {};
-        for(y=0;y<mapDesc.length;++y) {
-            for(x=0;x<mapDesc[y].length/3;++x) {
-                console.log(tileset[mapDesc[y][x*3+2]]);
-                var result = Object.create(tileset[mapDesc[y][x*3+2]]);
-                result.x = x;
-                result.y = y;
-                result.h = +mapDesc[y][x*3+1];
-                map[x+','+y] = result;
-                mapXmax = mapXmax < x ? x : mapXmax;
-                mapYmax = mapYmax < y ? y : mapYmax;
-            }
-        }
-        return map;
-    }
-    map = mapParse(mapDesc);
-    function mapGet(x,y) {
-        x = x % mapXmax; x >=0 || (x += mapXmax);
-        y = y % mapYmax; y >=0 || (y += mapYmax);
-        return map[x+','+y];
-    }
-
-    var imgs;
-
-    function drawMap(x0,y0) {
-        var screenWidth = 400;
-        var imgWidth = Math.round(screenWidth/5.5);
-        var imgHeight = Math.round(2*imgWidth); //  .4 .8 .5
-        var flatHeight = Math.round(.4*imgHeight);
-        var groundHeight = Math.round(.1*imgHeight);
-        var x, y;
-        var dx = x0 - Math.round(x0);
-        var x0 = Math.round(x0);
-        var dy = y0 - Math.round(y0);
-        var y0 = Math.round(y0);
-
-        var deltay = Math.round(screenWidth/2 - .8*imgHeight - mapGet(x0,y0).tileDepth * groundHeight - mapGet(x0,y0).h*groundHeight - dy * groundHeight);
-        var deltax = Math.round((screenWidth-imgWidth)/2 - dx * imgWidth);
-
-        html = [];
-
+    function update(x0, y0, changed) {
+        var x, y, obj, img, style, top, left;
         if(!imgs) {
             imgs = [];
-            for(var i=0;i<49;++i) {
+            for(var i=0;i<size*size*2;++i) {
                 var t = $('<img>');
-                t.css('width', imgWidth);
-                t.css('height', imgHeight);
+                t.css('width', scale+1);
+                t.css('height', scale*2+1);
                 $('#sprites').append(t);
                 imgs.push(t[0]);
             }
         }
-        for(x=-3;x<=3;++x) {
-            for(y=-3;y<=3;++y) {
-                var im = imgs[24+x+7*y];
-                var obj = mapGet(x0+x,y0+y);
-                var file  = "imgs/tile/" + obj.landscape + ".png";
-                if(file != im.src) im.src = file;
-                var style = im.style;
-                style.left = (x * imgWidth + deltax) + 'px';
-                style.top = (y * flatHeight + obj.h * groundHeight + deltay) + 'px';
-                style["z-index"] = y*2+7;
+        if(changed || prevx0 !== x0 || prevy0 !== y0) {
+            prevx0 = x0; prevy0 = y0;
+            for(y=0;y<7;++y) {
+                for(x=0;x<10;++x) {
+                    obj = map(x+x0,y+y0)
+                    img = imgs[x+y*size*2]
+                    img.src = 'imgs/tile/' + obj.tile+ '.png';
+                    top = .8 * scale * y + obj.h * .2 * scale;
+                    left = scale * x;
+                    img.style.left = left + "px";
+                    img.style.top = top + "px";
+                    img.style['z-index'] = y*2;
+
+                    top -= .8 * scale;
+                    img = imgs[x+y*2*size+size]
+                    img.src = 'imgs/obj/' + obj.obj + '.png';
+                    img.style.left = left + "px";
+                    img.style.top = top + "px";
+                    img.style['z-index'] = y*2;
+                }
             }
         }
     }
 
-    pos = 3;
-    function draw() {
-        var t0 = (new Date()).getMilliseconds();
-        drawMap(pos,4);
-        pos+=.05;
-        console.log("draw-time: ", (new Date()).getMilliseconds() - t0);
-        //setTimeout(draw,50);
+    function heightAt(x0,y0) {
+        var x = Math.floor(x0);
+        var y = Math.floor(y0);
+        var h0 = map(x,y).h;
+        var h1 = map(x + 1,y).h;
+        var h2 = map(x,y + 1).h;
+        var h3 = map(x + 1,y + 1).h;
+        x = x0 - x;
+        y = y0 - y;
+        return (h0*(1-x) + h1*x)*(1-y) + (h2*(1-x) + h3*x)*y;
     }
-    draw();
 
+    var imgs2;
+    function drawAt(x,y) {
+        var h = heightAt(x,y);
+        x+=.5;y+=.5;
+        var x0 = Math.floor(x-3);
+        var y0 = Math.floor(y-3);
+        var left = (3 - (x-x0))*scale;
+        var top = (2.5 - (y-y0))*.8*scale -h*.2*scale;
+        //$("#sprites")
+        //    .attr('id', 'sprites2')
+        //    .before($('<div id="sprites"></div>'));
+        //var t = imgs; imgs = imgs2; imgs2 = t;
+        //imgs = undefined;
+        update(x0,y0);
+        $("#sprites").css('left', left);
+        $("#sprites").css('top', top);
+        //$("#sprites2").remove();
+    }
+
+    x = 4; y = 4;
+    function draw() {
+        console.log(x,y);
+        //y+=.01;
+        drawAt(x,y);
+        x+=.10;
+        setTimeout(draw, 100);
+    }
+    update(0,0);
+    $("#sprites").css('top', -30);
+    $("#sprites").css('left');
+    //setTimeout(draw, 2000);
+
+    //drawAt(3.5,3.5);
+    //update(0,0);
 };
 
 Q.setMain(function() {
     PlanetCute([
-    " 0+ 0+ 0  2+ 3+ 4  4  4  4  4  4  4 ",
-    " 0V 0+ 1+ 2+ 2+ 4  4  4  4  4  4  4 ",
-    " 2+ 0# 2d 2= 4~ 4~ 4~ 4~ 4~ 4~ 4~ 4 ",
-    " 2+ 0# 4  4  4~ 2p 2# 2# 2# 2# 4~ 4 ",
-    " 2+ 2p 3+ 4  4~ 2p 3+ 4d 4d 2# 4~ 4 ",
-    " 4o 2p 2+ 4  4~ 2p 4d 4d 4d 2# 4~ 4 ",
-    " 4~ 4  4  4  4~ 2p 2p 4d 2# 2# 4~ 4 ",
-    " 4~ 4  4~ 4= 4~ 4~ 4~ 4= 4~ 4~ 4~ 4 ",
-    " 4~ 4~ 4~ 4  4  4  4  4  4  4  4  4 "]);
+    " 4q 4q 4qt4 t4 t4 t4 t4 t4 t4 ",
+    "a0qs0qd0q 4  4  4  4  4  4 t4 ",
+    "z0Sx0Dc0ST4  4  5d 4  4 *4 t4 ",
+    "t4  4d 4  4  4  4 C4  4  4 t4 ",
+    " 4d 4d 4d 3+ 2+ 4  4  4q 4 t4 ",
+    " 4~ 4~ 4~ 4~ 2= 4~ 4~ 4~ 4~ 4~",
+    " 4  4 o4 r4  2+ 3+ 4d 4d 4d 4d"
+    ]);
+    PlanetCute([
+    " 4q 4q 4qt4 t4 t4 t4 t4 t4 t4 ",
+    "a0qs0qd0q 4  4  4  4  4  4 t4 ",
+    "z0Sx0Dc0ST4  4  5d 4  4 *4 t4 ",
+    "t4  4d 4  4  4  4 C4  4  4 t4 ",
+    " 4d 4d 4d 3+ 2+ 4  4  4q 4 t4 ",
+    " 4~ 4~ 4~ 4~ 2= 4~ 4~ 4~ 4~ 4~",
+    " 4  4 o4 r4  2+ 3+ 4d 4d 4d 4d"
+    ]);
 });
