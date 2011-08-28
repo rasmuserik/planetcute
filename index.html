@@ -3,7 +3,8 @@
 <head>
     <title>xblast.me</title>
     <style>canvas{position:absolute;left:0;top:0}</style>
-    <style>#sprites{border:solid; border-width: 1px;position:absolute;left:50px;top:50px;width:400px;height:320px;background: #000;overflow:hidden}</style>
+    <style>#viewport{border:solid; border-width: 1px;position:absolute;left:0px;top:0px;width:400px;height:320px;background: #000;overflow:hiddn}</style>
+    <style>#sprites{position:absolute;left:0px;top:0px}</style>
     <style>#sprites img {position:absolute; border:none}</style>
     <meta name="MobileOptimized" content="320"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -14,7 +15,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 </head>
 <body>
-<div id="sprites"></div>
+<div id="viewport"><div id="sprites"></div></div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="es5-shim.min.js"></script>
 <script src="jquery-1.6.2.min.js"></script>
