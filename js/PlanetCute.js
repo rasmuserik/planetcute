@@ -76,26 +76,23 @@ PlanetCute = function(mapDesc) {
         for(i=0;i<map.length;++i) {
             obj = map[i];
             if(obj.tile) {
-                console.log(obj.tile); 
                 html.push('<img src="imgs/tile/' + obj.tile + '.png" style="');
                 html.push(defaultstyle);
                 html.push('left:' + imWidth*obj.x + "px;");
-                html.push('z-index:' + obj.y*2 + ";");
+                html.push('z-index:' + obj.y + ";");
                 html.push('top:' + (imHeight*.4*obj.y + (3-obj.h) * imHeight * .1) + "px;");
                 html.push('">');
             }
             if(obj.item) {
-                console.log(obj.item); 
                 html.push('<img src="imgs/obj/' + obj.item+ '.png" style="');
                 html.push(defaultstyle);
                 html.push('left:' + imWidth*obj.x + "px;");
-                html.push('z-index:' + obj.y*2 + ";");
+                html.push('z-index:' + obj.y + ";");
                 html.push('top:' + (imHeight*.4*obj.y + (-1-obj.h) * imHeight * .1) + "px;");
                 html.push('">');
             }
         }
         $("#viewport").html(html.join(""));
-        console.log(map);
     }
     function imgY(x,y) {
         return imHeight*.4*y + (-1-map[x+7*y].h) * imHeight * .1;
@@ -104,7 +101,91 @@ PlanetCute = function(mapDesc) {
     mapParse(mapDesc);
     drawMap();
     x=3; y = 3;
-    $("#viewport").append($('<img src="imgs/obj/Character-Princess-Girl.png" style="position:absolute;top:' + imgY(x,y) + 'px;left:' + x * imWidth + 'px;z-index:' + y*2 + ';width:' + imWidth + 'px;height:' + imHeight + 'px;">'));
+
+    var id = 0;
+    var animated = {};
+    var animating = false;
+    function animate(sprite) {
+        animated[sprite.id] = sprite;
+        if(animating) return;
+        doAnimate();
+    }
+
+    var animTime = 700;
+
+    function doAnimate() {
+        var elem, ratio, x, y;
+        var now = (new Date()).getTime();
+
+        animating = false;
+        for(elem in animated) {
+            animating = true;
+            elem = animated[elem];
+            if(elem.destTime <= now) {
+                elem.prevX = elem.destX;
+                elem.prevY = elem.destY;
+                elem.style.left = elem.destX + 'px';
+                elem.style.top = elem.destY + 'px';
+                elem.style.zIndex = elem.y;
+                delete animated[elem.id];
+            } else {
+                ratio = (elem.destTime - now)/animTime;
+                if(ratio < 0.5) elem.style.zIndex = elem.y;
+                var t = ratio - .5;
+                t = (.25 - t * t) * imHeight;
+                elem.style.left = ((1-ratio)*elem.destX + ratio * elem.prevX) + 'px';
+                elem.style.top = ((1-ratio)*elem.destY + ratio * elem.prevY - t) + 'px';
+            }
+        }
+
+        if(animating) {
+            setTimeout(doAnimate, 20);
+        }
+    }
+
+    function Sprite(name, x, y) {
+        var sprite = {
+            img: name,
+            imX: x * imWidth,
+            id: ++id,
+            destX: x,
+            destY: y,
+            destTime: (new Date()).getTime(),
+            x: x,
+            y: y
+        };
+        var style = $('<img src="imgs/obj/' + name + '.png" style="width:'+imWidth+'px;height:'+imHeight+'px;position:absolute;">');
+        $("#viewport").append(style);
+        style = style[0].style;
+        sprite.style = style;
+        sprite.moveTo = function(x, y) {
+            sprite.destY = imgY(x,y)
+            sprite.destX = (sprite.x = x) * imWidth;
+            sprite.destTime = (new Date()).getTime() + animTime;
+            sprite.y = y;
+            animate(sprite);
+        }
+        animate(sprite);
+        return sprite;
+
+        //$("#viewport").append($('<img src="imgs/obj/Character-Princess-Girl.png" style="position:absolute;top:' + imgY(x,y) + 'px;left:' + x * imWidth + 'px;z-index:' + y*2 + ';width:' + imWidth + 'px;height:' + imHeight + 'px;">'));
+    };
+
+    var princess = Sprite('Character-Princess-Girl', 3,3);
+
+    $(document).bind('keydown', function(x) {
+        if(x.keyCode === 37) {
+            princess.moveTo(princess.x-1, princess.y);
+        } else if(x.keyCode === 38) {
+            princess.moveTo(princess.x, princess.y-1);
+        } else if(x.keyCode === 39) {
+            princess.moveTo(princess.x+1, princess.y);
+        } else if(x.keyCode === 40) {
+            princess.moveTo(princess.x, princess.y+1);
+        }
+    });
+
+
 };
 
 Q.setMain(function() {
