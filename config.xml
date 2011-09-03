@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="com.rasmuserik.planetcute" version="0.9.0">
+<name>PlanetCute</name>
+
+<description></description>
+
+<author href="http://rasmuserik.com/">Rasmus Erik Voel Jensen</author>
+<icon src="icon.png" gap:role="default" />
+<preference name="orientation" value="landscape" />
+
+<gap:platforms>
+<gap:platform name="android" minVersion="2.1" />
+</gap:platforms>
+
+<feature name="http://api.phonegap.com/1.0/camera" required="false"/>
+<feature name="http://api.phonegap.com/1.0/contacts" required="false"/>
+<feature name="http://api.phonegap.com/1.0/file" required="false"/>
+<feature name="http://api.phonegap.com/1.0/geolocation" required="false"/>
+<feature name="http://api.phonegap.com/1.0/media" required="false"/>
+<feature name="http://api.phonegap.com/1.0/network" required="false"/>
+<feature name="http://api.phonegap.com/1.0/notification" required="false"/>
+
+</widget>

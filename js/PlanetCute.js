@@ -127,12 +127,13 @@ PlanetCute = function(mapDesc) {
                 elem.style.left = elem.destX + 'px';
                 elem.style.top = elem.destY + 'px';
                 elem.style.zIndex = elem.y;
+                elem.moving = false;
                 delete animated[elem.id];
             } else {
                 ratio = (elem.destTime - now)/animTime;
                 if(ratio < 0.5) elem.style.zIndex = elem.y;
                 var t = ratio - .5;
-                t = (.25 - t * t) * imHeight;
+                t = (.25 - t * t) * imHeight * .8;
                 elem.style.left = ((1-ratio)*elem.destX + ratio * elem.prevX) + 'px';
                 elem.style.top = ((1-ratio)*elem.destY + ratio * elem.prevY - t) + 'px';
             }
@@ -148,8 +149,8 @@ PlanetCute = function(mapDesc) {
             img: name,
             imX: x * imWidth,
             id: ++id,
-            destX: x,
-            destY: y,
+            destX: x * imWidth,
+            destY: imgY(x,y),
             destTime: (new Date()).getTime(),
             x: x,
             y: y
@@ -159,11 +160,31 @@ PlanetCute = function(mapDesc) {
         style = style[0].style;
         sprite.style = style;
         sprite.moveTo = function(x, y) {
-            sprite.destY = imgY(x,y)
-            sprite.destX = (sprite.x = x) * imWidth;
-            sprite.destTime = (new Date()).getTime() + animTime;
-            sprite.y = y;
-            animate(sprite);
+            if(x<0)x=0; if(y<0)y=0;
+            if(x>6)x=6; if(y>5)y=5;
+            if(!sprite.moving) {
+                var dh = map[x+y*7].h - map[sprite.x+sprite.y*7].h;
+                dh = dh*dh;
+                if(dh > 4) {
+                    x = sprite.x;
+                    y = sprite.y;
+                }
+
+                sprite.destY = imgY(x,y)
+                sprite.destX = (sprite.x = x) * imWidth;
+                sprite.destTime = (new Date()).getTime() + animTime;
+                sprite.y = y;
+                sprite.moving = true;
+                animate(sprite);
+                if(x === 0) { $('#arrow_left').css('visibility', 'hidden');
+                } else { $('#arrow_left').css('visibility', 'visible'); }
+                if(x === 6) { $('#arrow_right').css('visibility', 'hidden');
+                } else { $('#arrow_right').css('visibility', 'visible'); }
+                if(y === 0) { $('#arrow_up').css('visibility', 'hidden');
+                } else { $('#arrow_up').css('visibility', 'visible'); }
+                if(y === 5) { $('#arrow_down').css('visibility', 'hidden');
+                } else { $('#arrow_down').css('visibility', 'visible'); }
+            }
         }
         animate(sprite);
         return sprite;
@@ -173,6 +194,19 @@ PlanetCute = function(mapDesc) {
 
     var princess = Sprite('Character-Princess-Girl', 3,3);
 
+
+
+    Q.registerEvents(function(x,y) {
+        if(x < imWidth) {
+            princess.moveTo(princess.x-1, princess.y);
+        } else if(x > scrWidth - imWidth) {
+            princess.moveTo(princess.x+1, princess.y);
+        } else if(y < imHeight/2) {
+            princess.moveTo(princess.x, princess.y-1);
+        } else if(y > scrHeight - imHeight/2) {
+            princess.moveTo(princess.x, princess.y+1);
+        }
+    });
     $(document).bind('keydown', function(x) {
         if(x.keyCode === 37) {
             princess.moveTo(princess.x-1, princess.y);
