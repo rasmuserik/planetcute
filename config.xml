@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="com.rasmuserik.planetcute" version="0.9.0">
-<name>PlanetCute</name>
 
-<description></description>
+<name>PlanetCute</name>
+<shortdescription>Old game engine prototype</shortdescription>
+<description>Unfinished, old html-game-engine-from-scratch experiment, added here for completeness</description>
 
 <author href="http://rasmuserik.com/">Rasmus Erik Voel Jensen</author>
 <icon src="icon.png" gap:role="default" />
