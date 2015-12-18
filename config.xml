@@ -4,6 +4,7 @@
 <name>PlanetCute</name>
 <shortdescription>Old game engine prototype</shortdescription>
 <description>Unfinished, old html-game-engine-from-scratch experiment, added here for completeness</description>
+<date>2011-08</date>
 
 <author href="http://rasmuserik.com/">Rasmus Erik Voel Jensen</author>
 <icon src="icon.png" gap:role="default" />
